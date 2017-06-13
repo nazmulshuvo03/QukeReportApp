@@ -108,31 +108,23 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake>{
                 return magnitudeColor1;
             case 2:
                 return magnitudeColor2;
-
             case 3:
                 return magnitudeColor3;
-
             case 4:
                 return magnitudeColor4;
-
             case 5:
                 return magnitudeColor5;
-
             case 6:
                 return magnitudeColor6;
-
             case 7:
                 return magnitudeColor7;
 
             case 8:
                 return magnitudeColor8;
-
             case 9:
                 return magnitudeColor9;
-
             default:
                 return magnitudeColor10;
-
 
         }
     }
