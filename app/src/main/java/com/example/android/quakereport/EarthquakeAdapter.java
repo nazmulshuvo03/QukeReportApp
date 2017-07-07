@@ -1,6 +1,7 @@
 package com.example.android.quakereport;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
@@ -17,10 +18,10 @@ import java.util.ArrayList;
  * Created by nazmul on 6/9/17.
  */
 
-public class EarthquakeAdapter extends ArrayAdapter<Earthquake>{
+public class EarthquakeAdapter extends ArrayAdapter<Earthquake> {
     private static final String LOG_TAG = EarthquakeAdapter.class.getSimpleName();
 
-    public EarthquakeAdapter(Activity context, ArrayList<Earthquake> quakeReports){
+    public EarthquakeAdapter(Context context, ArrayList<Earthquake> quakeReports) {
         super(context, 0, quakeReports);
     }
 
@@ -41,7 +42,7 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake>{
         magnitudeTextView.setText(magnitudeText);
 
         ////set proper magnitude color and circle
-        
+
         GradientDrawable magnitudeCircle = (GradientDrawable) magnitudeTextView.getBackground();
         int magnitudeColor = getMagnitudeColor(currentQuakeReport.getMagnitude());
         magnitudeCircle.setColor(magnitudeColor);
@@ -52,9 +53,9 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake>{
 
         //// offset location textview
         String offsetLocation;
-        if (location.contains("of")){
-            offsetLocation = location.substring(0, (location.indexOf("of")+2));
-        }else {
+        if (location.contains("of")) {
+            offsetLocation = location.substring(0, (location.indexOf("of") + 2));
+        } else {
             offsetLocation = "Near the";
         }
         TextView offsetLocationTextView = (TextView) listItemView.findViewById(R.id.offset_location_text_view);
@@ -62,9 +63,9 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake>{
 
         //// primary location textview
         String primaryLocation = "";
-        if (location.contains("of")){
-            primaryLocation = location.substring((location.indexOf("of")+2), location.length());
-        }else {
+        if (location.contains("of")) {
+            primaryLocation = location.substring((location.indexOf("of") + 2), location.length());
+        } else {
             primaryLocation = location;
         }
         TextView locationTextView = (TextView) listItemView.findViewById(R.id.primary_location_text_view);
@@ -102,7 +103,7 @@ public class EarthquakeAdapter extends ArrayAdapter<Earthquake>{
         int magnitudeColor9 = ContextCompat.getColor(getContext(), R.color.magnitude9);
         int magnitudeColor10 = ContextCompat.getColor(getContext(), R.color.magnitude10plus);
 
-        switch (magnitudeFloor){
+        switch (magnitudeFloor) {
             case 0:
             case 1:
                 return magnitudeColor1;
