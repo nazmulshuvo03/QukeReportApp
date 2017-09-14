@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 
 import static com.example.android.quakereport.EarthquakeActivity.LOG_TAG;
 
@@ -46,17 +47,116 @@ public final class QueryUtils {
      * directly from the class name QueryUtils (and an object instance of QueryUtils is not needed).
      */
     private QueryUtils() {
+
     }
 
     /**
      * Returns new URL object from the given string URL.
      */
+    private static URL createUrl(String stringUrl) {
+        URL url = null;
+        try {
+            url = new URL(stringUrl);
+        } catch (MalformedURLException exception) {
+            Log.e(LOG_TAG, "Error with creating URL", exception);
+            return null;
+        }
+        return url;
+    }
 
+    /**
+     * Make an HTTP request to the given URL and return a String as the response.
+     */
+    private static String makeHttpRequest(URL url) throws IOException {
+        String jsonResponse = "";
+        if (url == null) {
+            return jsonResponse;
+        }
+
+        HttpURLConnection urlConnection = null;
+        InputStream inputStream = null;
+
+        try {
+            urlConnection = (HttpURLConnection) url.openConnection();
+            urlConnection.setRequestMethod("GET");
+            urlConnection.connect();
+
+            if (urlConnection.getResponseCode() == 200) {
+                inputStream = urlConnection.getInputStream();
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, Charset.forName("UTF-8"));
+                BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
+                StringBuilder output = new StringBuilder();
+                String line = bufferedReader.readLine();
+                while (line != null) {
+                    output.append(line);
+                    line = bufferedReader.readLine();
+                }
+                jsonResponse = output.toString();
+            } else {
+                Log.e(LOG_TAG, "ERROR RESPONSE CODE : " + urlConnection.getResponseCode());
+            }
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "PROBLEM GETTING THE DATA", e);
+        } finally {
+            if (urlConnection != null) urlConnection.disconnect();
+            if (inputStream != null) inputStream.close();
+        }
+
+        return jsonResponse;
+    }
 
     /**
      * Return a list of {@link Earthquake} objects that has been built up from
      * parsing a JSON response.
      */
+    private static ArrayList<Earthquake> extractFeaturesFromJson(String earthquakeJson) {
+        if (earthquakeJson.isEmpty()) {
+            return null;
+        }
 
+        ArrayList<Earthquake> earthquakes = new ArrayList<>();
 
+        try {
+            JSONObject baseJsonResponse = new JSONObject(earthquakeJson);
+            JSONArray earthquakeArray = baseJsonResponse.getJSONArray("features");
+
+            for (int i = 0; i < earthquakeArray.length(); i++) {
+                JSONObject currentEarthquake = earthquakeArray.getJSONObject(i);
+                JSONObject properties = currentEarthquake.getJSONObject("properties");
+
+                double magnitude = properties.getDouble("mag");
+                String location = properties.getString("place");
+                long time = properties.getLong("time");
+                String url = properties.getString("url");
+
+                Earthquake earthquake = new Earthquake(magnitude, location, time, url);
+                earthquakes.add(earthquake);
+            }
+
+        } catch (JSONException e) {
+            // If an error is thrown when executing any of the above statements in the "try" block,
+            // catch the exception here, so the app doesn't crash. Print a log message
+            // with the message from the exception.
+            Log.e("QueryUtils", "Problem parsing the earthquake JSON results", e);
+        }
+        return earthquakes;
+    }
+
+    /**
+     * Query the USGS dataset and return a list of {@link Earthquake} objects.
+     */
+    public static ArrayList<Earthquake> fetchEarthquakeData(String requestUrl) {
+
+        URL url = createUrl(requestUrl);
+        String jsonResponse = null;
+
+        try {
+            jsonResponse = makeHttpRequest(url);
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "PROBLEM GETTING THE DATA", e);
+        }
+
+        ArrayList<Earthquake> earthquakes = extractFeaturesFromJson(jsonResponse);
+        return earthquakes;
+    }
 }
