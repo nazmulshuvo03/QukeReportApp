@@ -1,6 +1,5 @@
 package com.example.android.quakereport;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.GradientDrawable;
 import android.support.v4.content.ContextCompat;

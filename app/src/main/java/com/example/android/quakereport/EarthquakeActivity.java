@@ -17,34 +17,32 @@ package com.example.android.quakereport;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
+import java.util.List;
 
-public class EarthquakeActivity extends AppCompatActivity {
+import android.app.LoaderManager;
+import android.app.LoaderManager.LoaderCallbacks;
+import android.content.Loader;
+
+public class EarthquakeActivity extends AppCompatActivity implements LoaderCallbacks<List<Earthquake>>{
 
     public static final String LOG_TAG = EarthquakeActivity.class.getName();
     private static final String USGS_REQUEST_URL = "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&eventtype=earthquake&orderby=time&minmag=6&limit=10";
 
     private EarthquakeAdapter earthquakeAdapter;
+
+    /**
+     * Constant value for the earthquake loader ID. We can choose any integer.
+     * This really only comes into play if you're using multiple loaders.
+     */
+    private static final int EARTHQUAKE_LOADER_ID = 1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,12 +65,33 @@ public class EarthquakeActivity extends AppCompatActivity {
             }
         });
 
-        EathquakeAsyncTask task = new EathquakeAsyncTask();
-        task.execute(USGS_REQUEST_URL);
+//        EathquakeAsyncTask task = new EathquakeAsyncTask();
+//        task.execute(USGS_REQUEST_URL);
 
-
+        LoaderManager loaderManager = getLoaderManager();
+        loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
     }
 
+    @Override
+    public Loader<List<Earthquake>> onCreateLoader(int i, Bundle bundle) {
+        return new EarthquakeLoader(this, USGS_REQUEST_URL);
+    }
+
+    @Override
+    public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
+        if (earthquakes == null) return;
+        earthquakeAdapter.clear();
+        if (earthquakes != null && !earthquakes.isEmpty()) {
+            earthquakeAdapter.addAll(earthquakes);
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<List<Earthquake>> loader) {
+        earthquakeAdapter.clear();
+    }
+
+    /*
     public class EathquakeAsyncTask extends AsyncTask<String, Void, ArrayList<Earthquake>> {
 
         @Override
@@ -85,26 +104,14 @@ public class EarthquakeActivity extends AppCompatActivity {
             return result;
         }
 
-
         @Override
         protected void onPostExecute(ArrayList<Earthquake> earthquakes) {
             if (earthquakes == null) return;
-
-            //super.onPostExecute(earthquake);
-
-
-            // set every item in the list to take to the url
-
-//            ArrayList<Earthquake> earthquakes = null;
-//            try {
-//                earthquakes = extractEarthquakes();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
             earthquakeAdapter.clear();
             if (earthquakes != null && !earthquakes.isEmpty()) {
                 earthquakeAdapter.addAll(earthquakes);
             }
         }
     }
+    */
 }
