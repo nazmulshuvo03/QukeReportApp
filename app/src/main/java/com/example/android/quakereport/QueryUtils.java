@@ -156,6 +156,15 @@ public final class QueryUtils {
         }
 
         ArrayList<Earthquake> earthquakes = extractFeaturesFromJson(jsonResponse);
+
+/*
+        //  progressbar tesing
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+*/
         return earthquakes;
     }
 }

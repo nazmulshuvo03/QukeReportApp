@@ -16,4 +16,5 @@
 <resources>
     <string name="app_name">Quake Report</string>
     <string name="emptyStateText">No Earthquakes Found</string>
+    <string name="internetConnection">No Internet Connection</string>
 </resources>

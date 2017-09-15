@@ -15,7 +15,10 @@
  */
 package com.example.android.quakereport;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -30,6 +33,7 @@ import java.util.List;
 import android.app.LoaderManager;
 import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Loader;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 public class EarthquakeActivity extends AppCompatActivity implements LoaderCallbacks<List<Earthquake>>{
@@ -39,6 +43,7 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderCallb
 
     private EarthquakeAdapter earthquakeAdapter;
     private TextView mEmptyStateTextView;
+    private ProgressBar mProgressbar;
 
     /**
      * Constant value for the earthquake loader ID. We can choose any integer.
@@ -59,6 +64,12 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderCallb
         earthquakeAdapter = new EarthquakeAdapter(this, new ArrayList<Earthquake>());
         listView.setAdapter(earthquakeAdapter);
 
+//        check internet connection
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = connectivityManager.getActiveNetworkInfo();
+
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
+
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
@@ -70,16 +81,24 @@ public class EarthquakeActivity extends AppCompatActivity implements LoaderCallb
             }
         });
 
-        //EathquakeAsyncTask task = new EathquakeAsyncTask();
-        //task.execute(USGS_REQUEST_URL);
-
-        LoaderManager loaderManager = getLoaderManager();
-        //Log.i(LOG_TAG, "initLoader() is called");
-        loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
-
 //        Empty state textview
         mEmptyStateTextView = (TextView) findViewById(R.id.empty_view);
         listView.setEmptyView(mEmptyStateTextView);
+
+        //EathquakeAsyncTask task = new EathquakeAsyncTask();
+        //task.execute(USGS_REQUEST_URL);
+
+        if (isConnected) {
+            LoaderManager loaderManager = getLoaderManager();
+            //Log.i(LOG_TAG, "initLoader() is called");
+            loaderManager.initLoader(EARTHQUAKE_LOADER_ID, null, this);
+        } else {
+            View mProgressbar = findViewById(R.id.progressBar);
+            mProgressbar.setVisibility(View.GONE);
+
+            mEmptyStateTextView.setText(R.string.internetConnection);
+        }
+
     }
 
 /**
@@ -98,12 +117,18 @@ Loader starts here
     public void onLoadFinished(Loader<List<Earthquake>> loader, List<Earthquake> earthquakes) {
         //Log.i(LOG_TAG, "onLoadFinished() is called");
 
+        mEmptyStateTextView.setText(R.string.emptyStateText);
+
+//      hide progressbar when loading is complete
+        mProgressbar = (ProgressBar) findViewById(R.id.progressBar);
+        mProgressbar.setVisibility(View.GONE);
+
+
         if (earthquakes == null) return;
         earthquakeAdapter.clear();
         if (earthquakes != null && !earthquakes.isEmpty()) {
             earthquakeAdapter.addAll(earthquakes);
         }
-        mEmptyStateTextView.setText(R.string.emptyStateText);
     }
 
     @Override
