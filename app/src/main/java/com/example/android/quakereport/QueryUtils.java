@@ -144,6 +144,7 @@ public final class QueryUtils {
      * Query the USGS dataset and return a list of {@link Earthquake} objects.
      */
     public static ArrayList<Earthquake> fetchEarthquakeData(String requestUrl) {
+        Log.i(LOG_TAG, "fetchEarthquakeData() is called");
 
         URL url = createUrl(requestUrl);
         String jsonResponse = null;
