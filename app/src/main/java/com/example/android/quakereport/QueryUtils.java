@@ -21,6 +21,7 @@ import static com.example.android.quakereport.EarthquakeActivity.LOG_TAG;
 /**
  * Helper methods related to requesting and receiving earthquake data from USGS.
  */
+
 public final class QueryUtils {
 
     /** Sample JSON response for a USGS query */
